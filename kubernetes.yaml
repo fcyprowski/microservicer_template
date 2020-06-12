@@ -1,0 +1,44 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: example-app
+spec:
+  selector:
+    matchLabels:
+      app: example-app
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: example-app
+    spec:
+      containers:
+      - name: example-app
+        image: gcr.io/your-account/example-app  # TO CHANGE - 
+        ports:
+        - containerPort: 5000
+        envFrom:
+        - secretRef:
+            name: your-secrets  # TO CHANGE - instructions on how to deploy the configuration in kubernetes are here:
+        - configMapRef:
+            name: your-config  # TO CHANGE - here you'll have your non-secret environment variables
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: example-app-svc
+  labels:
+    app: example-app-svc
+spec:
+  ports:
+  - port: 5000
+    targetPort: 5000
+    protocol: TCP
+    name: http
+  - port: 443
+    protocol: TCP
+    name: https
+  selector:
+    app: example-app
